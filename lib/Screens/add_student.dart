@@ -1,16 +1,17 @@
-// ignore_for_file: no_leading_underscores_for_local_identifiers
+// ignore_for_file: use_build_context_synchronously, unnecessary_nullable_for_final_variable_declarations
 
+import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
-import 'package:student_record_hive/Screens/home_screen.dart';
-import 'package:student_record_hive/Screens/view_students.dart';
+import 'package:student_record_hive/bloc/image_picker/image_picker_bloc.dart';
+import 'package:student_record_hive/bloc/select_date/select_date_bloc.dart';
+import 'package:student_record_hive/core/constants.dart';
+import 'package:student_record_hive/screens/view_students.dart';
 import 'package:student_record_hive/database/functions/db_functions.dart';
 import 'package:student_record_hive/database/model/db_model.dart';
 
-// final ImagePicker picker = ImagePicker();
-// XFile? imageFile;
 
 class ScreenAddStudent extends StatefulWidget {
   const ScreenAddStudent({super.key});
@@ -20,111 +21,134 @@ class ScreenAddStudent extends StatefulWidget {
 }
 
 class ScreenAddStudentState extends State<ScreenAddStudent> {
-  final _nameController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   final _ageController = TextEditingController();
   final _courseController = TextEditingController();
   DateTime? _selectedDate;
   final ImagePicker picker = ImagePicker();
   XFile? imageFile;
 
-  @override
-  void initState() {
-    super.initState();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  // }
+
+  // @override
+  // void dispose() {
+  //   super.dispose();
+  // }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-  
-  @override
   Widget build(BuildContext context) {
+    log('add student page build>>>>>>>>>>>>.');
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => const ScreenHome()));
-            },
-            icon: const Icon(Icons.arrow_back_rounded)),
+          icon: kLeadingIcon,
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         title: const Text(
           'Student Details',
-          style: TextStyle(color: Colors.white),
+          style: kAppbarTitleStyle,
         ),
       ),
-      backgroundColor: const Color.fromARGB(255, 207, 228, 255),
+      backgroundColor: kScaffoldBgColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(10.0),
           child: SingleChildScrollView(
             child: Column(
               children: [
-                dividerArea(),
-                GestureDetector(
-                  onTap: () {
-                    pickSelectedImage(ImageSource.gallery);
-                  },
-                  child: Stack(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: Colors.grey,
-                        radius: 60,
-                        backgroundImage: imageFile != null
-                            ? FileImage(File(imageFile!.path)) as ImageProvider
-                            : const NetworkImage(
-                                'https://static.vecteezy.com/system/resources/thumbnails/000/350/111/small/Education__28193_29.jpg'),
-                      ),
-                      Positioned(
-                        right: -24,
-                        bottom: -3,
-                        child: RawMaterialButton(
-                          onPressed: () {
-                            pickSelectedImage(ImageSource.camera);
-                          },
-                          child: const CircleAvatar(
-                            radius: 20,
-                            backgroundColor: Colors.white10,
-                            child: Icon(
-                              Icons.camera_alt,
-                              size: 20,
-                              color: Colors.deepPurple,
-                            ),
+                kHeight10,
+                BlocBuilder<ImagePickerBloc, ImagePickerState>(
+                  builder: (BuildContext context, state) {
+                    imageFile = state.image;
+                    return GestureDetector(
+                      onTap: () {
+                        BlocProvider.of<ImagePickerBloc>(context)
+                            .add(ChooseImage());
+                        //pickSelectedImage(ImageSource.gallery);
+                      },
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: Colors.grey,
+                            radius: 60,
+                            backgroundImage: (imageFile != null)
+                                ? FileImage(File(imageFile!.path))
+                                    as ImageProvider
+                                : const AssetImage(
+                                    'assets/images/default_logo.jpg'),
                           ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                dividerArea(),
-                const Text('Select a Photo'),
-                dividerArea(),
-                displayTextField(_nameController,TextInputType.text,'Name'),
-                dividerArea(),
-                displayTextField(_ageController,TextInputType.number,'Age'),
-                dividerArea(),
-                displayTextField(_courseController,TextInputType.text,'Course'),
-                dividerArea(),
-                TextButton.icon(
-                  onPressed: () async {
-                    final _selectedDateTemp = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime.now()
-                            .subtract(const Duration(days: 365 * 100)),
-                        lastDate: DateTime.now());
-                    if (_selectedDateTemp == null) {
-                      return;
-                    } else {
-                      setState(() {
-                        _selectedDate = _selectedDateTemp;
-                      });
-                    }
+                          Positioned(
+                            right: -24,
+                            bottom: -3,
+                            child: RawMaterialButton(
+                              onPressed: () {
+                                BlocProvider.of<ImagePickerBloc>(context)
+                                    .add(CaptureImage());
+                                //pickSelectedImage(ImageSource.camera);
+                              },
+                              child: const CircleAvatar(
+                                radius: 20,
+                                backgroundColor: Colors.white10,
+                                child: Icon(
+                                  Icons.camera_alt,
+                                  size: 20,
+                                  color: Colors.deepPurple,
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    );
                   },
-                  icon: const Icon(Icons.calendar_month,size: 40.0,),
-                  label: Text(
-                      _selectedDate == null ? 'DOB' : parseDate(_selectedDate!)),
                 ),
-                dividerArea(),
+                kHeight10,
+                const Text('Select a Photo'),
+                kHeight10,
+                displayTextField(_nameController, TextInputType.text, 'Name'),
+                kHeight10,
+                displayTextField(_ageController, TextInputType.number, 'Age'),
+                kHeight10,
+                displayTextField(
+                    _courseController, TextInputType.text, 'Course'),
+                kHeight10,
+                BlocBuilder<SelectDateBloc, SelectDateState>(
+                  builder: (context, state) {
+                    log(state.date.toString());
+                    _selectedDate = state.date;
+                    return TextButton.icon(
+                      onPressed: () async {
+                        BlocProvider.of<SelectDateBloc>(context)
+                            .add(ChooseDOB(context: context));
+                        // final selectedDateTemp = await showDatePicker(
+                        //   context: context,
+                        //   initialDate: DateTime.now(),
+                        //   firstDate: DateTime.now()
+                        //       .subtract(const Duration(days: 365 * 100)),
+                        //   lastDate: DateTime.now(),
+                        // );
+                        // if (selectedDateTemp == null) {
+                        //   return;
+                        // } else {
+                        //   _selectedDate = selectedDateTemp;
+                        // }
+                      },
+                      icon: const Icon(
+                        Icons.calendar_month,
+                        size: 40.0,
+                      ),
+                      label: Text(_selectedDate == null
+                          ? 'DOB'
+                          : parseDate(_selectedDate!)),
+                    );
+                  },
+                ),
+                kHeight10,
                 ElevatedButton(
                   onPressed: () {
                     saveButtonPressed(context);
@@ -135,10 +159,7 @@ class ScreenAddStudentState extends State<ScreenAddStudent> {
                         top: 14.0, bottom: 14.0, left: 4.5, right: 4.5),
                     child: Text(
                       'Save',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: Colors.white),
+                      style: kButtonStyle,
                     ),
                   ),
                 ),
@@ -150,44 +171,37 @@ class ScreenAddStudentState extends State<ScreenAddStudent> {
     );
   }
 
-  Future<void> pickSelectedImage(ImageSource source) async {
-    XFile? pickedFile = await ImagePicker().pickImage(source: source);
-    setState(() {
-      imageFile = pickedFile;
-    });
-  }
-
-  Widget displayTextField(_controller,_keyboardType,_hintText){
-   return TextFormField(
-      controller: _controller,
-      keyboardType: _keyboardType,
-      decoration: InputDecoration(
-          border: const OutlineInputBorder(), 
-          hintText: _hintText),
-    );
-  }
-
-  Widget dividerArea(){
-    return const SizedBox(height: 10);
-  }
-
-  String parseDate(DateTime displayDate){
-    return DateFormat.yMMMd('en_US').format(displayDate);
-  }
+  // Future<void> pickSelectedImage(ImageSource source) async {
+  //   XFile? pickedFile = await ImagePicker().pickImage(source: source);
+  //   setState(() {
+  //     imageFile = pickedFile;
+  //   });
+  // }
 
   Future<void> saveButtonPressed(BuildContext contxt) async {
-    final nameText = _nameController.text.trim();
-    final ageText = _ageController.text.trim();
-    final courseText = _courseController.text.trim();
-    final selectedImage = imageFile!.path.toString();
+    final String? nameText = _nameController.text.trim();
+    final String? ageText = _ageController.text.trim();
+    final String? courseText = _courseController.text.trim();
+    final String? selectedImage;
 
-    if (nameText.isEmpty ||
-        ageText.isEmpty ||
-        courseText.isEmpty ||
+    if (imageFile == null) {
+      selectedImage = '';
+    } else {
+      selectedImage = imageFile!.path;
+    }
+
+    if (nameText!.isEmpty ||
+        ageText!.isEmpty ||
+        courseText!.isEmpty ||
         selectedImage.isEmpty ||
         _selectedDate.toString().isEmpty) {
+      showSnackBarMsg(context, Colors.redAccent, 'All fields are required');
       return;
     }
+
+    ageValidation(context, ageText);
+    nameValidation(context, nameText);
+    
 
     final student = StudentModel(
       name: nameText,
@@ -197,14 +211,13 @@ class ScreenAddStudentState extends State<ScreenAddStudent> {
       image: selectedImage,
     );
 
-    addStudent(student);
-    ScaffoldMessenger.of(contxt).showSnackBar(const SnackBar(
-            backgroundColor: Color.fromARGB(255, 49, 185, 11),
-            margin: EdgeInsets.all(20),
-            behavior: SnackBarBehavior.floating,
-            content: Text("Added Successfully"),
-            duration: Duration(seconds: 2)));
+    await addStudent(student);
+
+    showSnackBarMsg(context, const Color.fromARGB(255, 49, 185, 11), 'Added Successfully');
     Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const ScreenViewStudent()));
+      MaterialPageRoute(
+        builder: (context) => const ScreenViewStudent(),
+      ),
+    );
   }
 }

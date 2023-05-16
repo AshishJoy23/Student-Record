@@ -1,20 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:student_record_hive/Screens/update_student.dart';
+import 'package:student_record_hive/core/constants.dart';
+import 'package:student_record_hive/screens/update_student.dart';
 import 'package:student_record_hive/database/functions/db_functions.dart';
 import 'package:student_record_hive/database/model/db_model.dart';
 
-class EachStudentInfo extends StatefulWidget {
-  final index;
-  const EachStudentInfo({Key? key, required this.index}) : super(key: key);
-
-  @override
-  State<EachStudentInfo> createState() => _EachStudentInfoState();
-}
-
-class _EachStudentInfoState extends State<EachStudentInfo> {
- 
+class EachStudentInfo extends StatelessWidget {
+  final int index;
+  EachStudentInfo({Key? key, required this.index}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,49 +16,51 @@ class _EachStudentInfoState extends State<EachStudentInfo> {
         valueListenable: studentListNotifier,
         builder:
             (BuildContext ctx, List<StudentModel> studentlist, Widget? child) {
-          final data = studentlist[widget.index];
+          final data = studentlist[index];
           return Scaffold(
             resizeToAvoidBottomInset: false,
-            backgroundColor: const Color.fromARGB(255, 229, 238, 249),
+            backgroundColor: kScaffoldBgColor,
             appBar: AppBar(
-              title: Text('${data.name} Info'),
+              leading: IconButton(
+                icon:kLeadingIcon,
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              title: Text('${data.name} Info',style: kAppbarTitleStyle,),
               actions: [
                 IconButton(
-                    onPressed: () {
-                      //editIconPressed(context, widget.index);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                ScreenUpdation(index: widget.index)),
-                      );
-                    },
-                    icon: const Icon(Icons.edit_note),
-                    iconSize: 40,)
+                  onPressed: () {
+                    //editIconPressed(context, widget.index);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ScreenUpdation(index: index)),
+                    );
+                  },
+                  icon: const Icon(Icons.edit_note),
+                  iconSize: 40,
+                )
               ],
             ),
             body: SafeArea(
               child: Column(
                 children: [
-                  const SizedBox(
-                    height: 50,
-                  ),
+                  kHeight50,
                   CircleAvatar(
                     backgroundImage: FileImage(File(data.image)),
                     radius: 100,
                   ),
                   Column(
                     children: [
-                      const SizedBox(
-                        height: 40,
-                      ),
-                      display("Name:", data.name.toUpperCase()),
+                      kHeight50,
+                      display("Name :", data.name.toUpperCase()),
                       dividerstyle,
-                      display("Age:", data.age),
+                      display("Age :", data.age),
                       dividerstyle,
-                      display("Course:", data.course),
+                      display("Course :", data.course),
                       dividerstyle,
-                      display("DOB:", parseDate(data.date)),
+                      display("DOB :", parseDate(data.date)),
                       const SizedBox(
                         height: 30,
                       ),
@@ -81,29 +77,33 @@ class _EachStudentInfoState extends State<EachStudentInfo> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        Text(
-          field,
-          style: const TextStyle(fontSize: 25),
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                field,
+                style: const TextStyle(
+                  fontSize: 23,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(
-          width: 12,
-        ),
-        Text(
-          data,
-          style: const TextStyle(fontSize: 25),
+        kWidth10,
+        Expanded(
+          child: Row(
+            children: [
+              Text(
+                data,
+                style: const TextStyle(fontSize: 22,fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
         )
       ],
     );
   }
 
-  Widget dividerstyle = const Divider(
-    color: Colors.grey,
-    thickness: 2,
-    indent: 20,
-    endIndent: 20,
-  );
-
-  String parseDate(DateTime displayDate){
-    return DateFormat.yMMMd('en_US').format(displayDate);
-  }
 }

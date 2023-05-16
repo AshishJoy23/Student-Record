@@ -1,39 +1,53 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:student_record_hive/Screens/each_student_info.dart';
-import 'package:student_record_hive/Screens/home_screen.dart';
+import 'package:lottie/lottie.dart';
+import 'package:student_record_hive/core/constants.dart';
+import 'package:student_record_hive/screens/each_student_info.dart';
 import 'package:student_record_hive/database/functions/db_functions.dart';
 import 'package:student_record_hive/database/model/db_model.dart';
+import 'package:student_record_hive/screens/search_screen.dart';
 
-class ScreenViewStudent extends StatefulWidget {
+class ScreenViewStudent extends StatelessWidget {
   const ScreenViewStudent({super.key});
 
-  @override
-  State<ScreenViewStudent> createState() => _ScreenViewStudentState();
-}
-
-class _ScreenViewStudentState extends State<ScreenViewStudent> {
   @override
   Widget build(BuildContext context) {
     getAllStudents();
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 207, 228, 255),
+      backgroundColor: kScaffoldBgColor,
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => const ScreenHome()));
-            },
-            icon: const Icon(Icons.arrow_back_rounded)),
+          icon: kLeadingIcon,
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         title: const Text(
           'Registered Students',
-          style: TextStyle(color: Colors.white),    
+          style: kAppbarTitleStyle,
         ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const ScreenSearch()));
+            },
+            icon: const Icon(
+              Icons.search,
+              size: 28,
+            ),
+          ),
+        ],
       ),
       body: ValueListenableBuilder(
           valueListenable: studentListNotifier,
           builder:
               (BuildContext ctx, List<StudentModel> studentList, Widget? _) {
+            if (studentList.isEmpty) {
+              return Center(
+                child: Lottie.asset('assets/animations/no_data1.json'),
+              );
+            }
             return ListView.separated(
               padding: const EdgeInsets.all(10.0),
               itemBuilder: (ctx, index) {
@@ -58,19 +72,17 @@ class _ScreenViewStudentState extends State<ScreenViewStudent> {
                     trailing: IconButton(
                       onPressed: () {
                         // if (data.id != null) {
-                          showAlertDialog(context,index);
+                        showAlertDialog(context, index);
                         // }
                       },
                       icon: const Icon(Icons.delete),
-                      color: Colors.black,
+                      color: Colors.redAccent,
                     ),
                   ),
                 );
               },
               separatorBuilder: (ctx, index) {
-                return const SizedBox(
-                  height: 10,
-                );
+                return kHeight10;
               },
               itemCount: studentList.length,
             );
@@ -82,7 +94,7 @@ class _ScreenViewStudentState extends State<ScreenViewStudent> {
     Widget cancelButton = ElevatedButton(
       child: const Text("Cancel"),
       onPressed: () {
-        Navigator.pop(context);
+        Navigator.pop(contxt);
       },
     );
     Widget okButton = ElevatedButton(
@@ -95,7 +107,7 @@ class _ScreenViewStudentState extends State<ScreenViewStudent> {
             behavior: SnackBarBehavior.floating,
             content: Text("Item deleted Successfully"),
             duration: Duration(seconds: 2)));
-        Navigator.pop(context);
+        Navigator.pop(contxt);
       },
     );
     // set up the AlertDialog
@@ -109,7 +121,7 @@ class _ScreenViewStudentState extends State<ScreenViewStudent> {
     );
     // show the dialog
     showDialog(
-      context: context,
+      context: contxt,
       builder: (BuildContext context) {
         return alert;
       },
