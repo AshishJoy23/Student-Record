@@ -13,7 +13,10 @@ const kAppbarTitleStyle = TextStyle(
   fontWeight: FontWeight.w600,
 );
 
-const kLeadingIcon = Icon(Icons.arrow_back_ios_new,size: 30,);
+const kLeadingIcon = Icon(
+  Icons.arrow_back_ios_new,
+  size: 30,
+);
 
 const kHeight10 = SizedBox(
   height: 10,

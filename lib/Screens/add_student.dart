@@ -12,7 +12,6 @@ import 'package:student_record_hive/screens/view_students.dart';
 import 'package:student_record_hive/database/functions/db_functions.dart';
 import 'package:student_record_hive/database/model/db_model.dart';
 
-
 class ScreenAddStudent extends StatefulWidget {
   const ScreenAddStudent({super.key});
 
@@ -28,19 +27,24 @@ class ScreenAddStudentState extends State<ScreenAddStudent> {
   final ImagePicker picker = ImagePicker();
   XFile? imageFile;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  // }
+  @override
+  void initState() {
+    super.initState();
+  }
 
-  // @override
-  // void dispose() {
-  //   super.dispose();
-  // }
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     log('add student page build>>>>>>>>>>>>.');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      BlocProvider.of<ImagePickerBloc>(context).add(RemoveImage());
+      BlocProvider.of<SelectDateBloc>(context).add(RemoveDOB());
+    });
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -69,7 +73,6 @@ class ScreenAddStudentState extends State<ScreenAddStudent> {
                       onTap: () {
                         BlocProvider.of<ImagePickerBloc>(context)
                             .add(ChooseImage());
-                        //pickSelectedImage(ImageSource.gallery);
                       },
                       child: Stack(
                         children: [
@@ -89,7 +92,6 @@ class ScreenAddStudentState extends State<ScreenAddStudent> {
                               onPressed: () {
                                 BlocProvider.of<ImagePickerBloc>(context)
                                     .add(CaptureImage());
-                                //pickSelectedImage(ImageSource.camera);
                               },
                               child: const CircleAvatar(
                                 radius: 20,
@@ -125,18 +127,6 @@ class ScreenAddStudentState extends State<ScreenAddStudent> {
                       onPressed: () async {
                         BlocProvider.of<SelectDateBloc>(context)
                             .add(ChooseDOB(context: context));
-                        // final selectedDateTemp = await showDatePicker(
-                        //   context: context,
-                        //   initialDate: DateTime.now(),
-                        //   firstDate: DateTime.now()
-                        //       .subtract(const Duration(days: 365 * 100)),
-                        //   lastDate: DateTime.now(),
-                        // );
-                        // if (selectedDateTemp == null) {
-                        //   return;
-                        // } else {
-                        //   _selectedDate = selectedDateTemp;
-                        // }
                       },
                       icon: const Icon(
                         Icons.calendar_month,
@@ -153,7 +143,6 @@ class ScreenAddStudentState extends State<ScreenAddStudent> {
                   onPressed: () {
                     saveButtonPressed(context);
                   },
-                  // icon: const Icon(Icons.view_list),
                   child: const Padding(
                     padding: EdgeInsets.only(
                         top: 14.0, bottom: 14.0, left: 4.5, right: 4.5),
@@ -170,13 +159,6 @@ class ScreenAddStudentState extends State<ScreenAddStudent> {
       ),
     );
   }
-
-  // Future<void> pickSelectedImage(ImageSource source) async {
-  //   XFile? pickedFile = await ImagePicker().pickImage(source: source);
-  //   setState(() {
-  //     imageFile = pickedFile;
-  //   });
-  // }
 
   Future<void> saveButtonPressed(BuildContext contxt) async {
     final String? nameText = _nameController.text.trim();
@@ -201,7 +183,6 @@ class ScreenAddStudentState extends State<ScreenAddStudent> {
 
     ageValidation(context, ageText);
     nameValidation(context, nameText);
-    
 
     final student = StudentModel(
       name: nameText,
@@ -213,7 +194,8 @@ class ScreenAddStudentState extends State<ScreenAddStudent> {
 
     await addStudent(student);
 
-    showSnackBarMsg(context, const Color.fromARGB(255, 49, 185, 11), 'Added Successfully');
+    showSnackBarMsg(
+        context, const Color.fromARGB(255, 49, 185, 11), 'Added Successfully');
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) => const ScreenViewStudent(),

@@ -12,6 +12,7 @@ class ScreenHome extends StatelessWidget {
     // ignore: prefer_const_constructors
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text(
           'HOME',
           style: kAppbarTitleStyle,

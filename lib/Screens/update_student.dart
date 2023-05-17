@@ -1,12 +1,10 @@
-// ignore_for_file: unnecessary_nullable_for_final_variable_declarations
-
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:student_record_hive/bloc/image_picker/image_picker_bloc.dart';
+import 'package:student_record_hive/bloc/list_view/list_view_bloc.dart';
 import 'package:student_record_hive/bloc/select_date/select_date_bloc.dart';
 import 'package:student_record_hive/core/constants.dart';
 import 'package:student_record_hive/database/functions/db_functions.dart';
@@ -26,14 +24,14 @@ class _ScreenUpdationState extends State<ScreenUpdation> {
   final updateCourseController = TextEditingController();
   DateTime? _updateDate;
   XFile? updatedImageFile;
+  List<StudentModel> studentList = studentBox.values.toList();
 
   @override
   Widget build(BuildContext context) {
     log('update screen build>>>>>>>>>>>>><<<<');
-    updateNameController.text = studentListNotifier.value[widget.index].name;
-    updateAgeController.text = studentListNotifier.value[widget.index].age;
-    updateCourseController.text =
-        studentListNotifier.value[widget.index].course;
+    updateNameController.text = studentList[widget.index].name;
+    updateAgeController.text = studentList[widget.index].age;
+    updateCourseController.text = studentList[widget.index].course;
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -63,7 +61,6 @@ class _ScreenUpdationState extends State<ScreenUpdation> {
                       onTap: () {
                         BlocProvider.of<ImagePickerBloc>(context)
                             .add(ChooseImage());
-                        //pickUpdatedImage(ImageSource.gallery);
                       },
                       child: Stack(
                         children: [
@@ -73,8 +70,8 @@ class _ScreenUpdationState extends State<ScreenUpdation> {
                             backgroundImage: updatedImageFile != null
                                 ? FileImage(File(updatedImageFile!.path))
                                     as ImageProvider
-                                : FileImage(File(studentListNotifier
-                                    .value[widget.index].image)),
+                                : FileImage(
+                                    File(studentList[widget.index].image)),
                           ),
                           Positioned(
                             right: -24,
@@ -83,7 +80,6 @@ class _ScreenUpdationState extends State<ScreenUpdation> {
                               onPressed: () {
                                 BlocProvider.of<ImagePickerBloc>(context)
                                     .add(CaptureImage());
-                                //pickUpdatedImage(ImageSource.camera);
                               },
                               child: const CircleAvatar(
                                 radius: 20,
@@ -102,16 +98,15 @@ class _ScreenUpdationState extends State<ScreenUpdation> {
                   },
                 ),
                 kHeight10,
-                // const Text('Select a Photo'),
                 kHeight10,
                 displayTextField(updateNameController, TextInputType.text,
-                    studentListNotifier.value[widget.index].name),
+                    studentList[widget.index].name),
                 kHeight10,
                 displayTextField(updateAgeController, TextInputType.number,
-                    studentListNotifier.value[widget.index].age),
+                    studentList[widget.index].age),
                 kHeight10,
                 displayTextField(updateCourseController, TextInputType.text,
-                    studentListNotifier.value[widget.index].course),
+                    studentList[widget.index].course),
                 kHeight10,
                 BlocBuilder<SelectDateBloc, SelectDateState>(
                   builder: (context, state) {
@@ -120,27 +115,13 @@ class _ScreenUpdationState extends State<ScreenUpdation> {
                       onPressed: () async {
                         BlocProvider.of<SelectDateBloc>(context)
                             .add(ChooseDOB(context: context));
-                        // final updatedDateTemp = await showDatePicker(
-                        //     context: context,
-                        //     initialDate: DateTime.now(),
-                        //     firstDate: DateTime.now()
-                        //         .subtract(const Duration(days: 365 * 100)),
-                        //     lastDate: DateTime.now());
-                        // if (updatedDateTemp == null) {
-                        //   return;
-                        // } else {
-                        //   setState(() {
-                        //     _updateDate = updatedDateTemp;
-                        //   });
-                        // }
                       },
                       icon: const Icon(
                         Icons.calendar_month,
                         size: 40.0,
                       ),
                       label: Text(_updateDate == null
-                          ? parseDate(
-                              studentListNotifier.value[widget.index].date)
+                          ? parseDate(studentList[widget.index].date)
                           : parseDate(_updateDate!)),
                     );
                   },
@@ -170,13 +151,13 @@ class _ScreenUpdationState extends State<ScreenUpdation> {
     DateTime? updatedDate;
 
     if (updatedImageFile == null) {
-      updatedImage = studentListNotifier.value[index].image;
+      updatedImage = studentList[index].image;
     } else {
       updatedImage = updatedImageFile!.path;
     }
 
     if (_updateDate == null) {
-      updatedDate = studentListNotifier.value[widget.index].date;
+      updatedDate = studentList[index].date;
     } else {
       updatedDate = _updateDate;
     }
@@ -200,8 +181,9 @@ class _ScreenUpdationState extends State<ScreenUpdation> {
         course: updatedCourse,
         image: updatedImage);
 
-    await updateStudent(updatedStudent, widget.index);
+    await updateStudent(updatedStudent, index);
     showSnackBarMsg(context, Colors.green, 'Updated Successfully');
+    BlocProvider.of<ListViewBloc>(context).add(StudentListView());
     Navigator.pop(context);
   }
 }

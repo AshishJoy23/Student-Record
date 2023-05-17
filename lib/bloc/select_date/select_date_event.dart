@@ -8,3 +8,5 @@ class ChooseDOB extends SelectDateEvent {
 
   ChooseDOB({required this.context});
 }
+
+class RemoveDOB extends SelectDateEvent {}

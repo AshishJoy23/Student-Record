@@ -18,6 +18,10 @@ class ImagePickerBloc extends Bloc<ImagePickerEvent, ImagePickerState> {
       return emit(ImagePickerState(image: result));
     });
 
+    on<RemoveImage>((event, emit) {
+      return emit(ImagePickerState(image: null));
+    });
+
   }
 }
 

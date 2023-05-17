@@ -11,7 +11,6 @@ class ScreenSplash extends StatefulWidget {
 }
 
 class _ScreenSplashState extends State<ScreenSplash> {
-
   @override
   void initState() {
     gotoMain();
@@ -37,8 +36,8 @@ class _ScreenSplashState extends State<ScreenSplash> {
   void dispose() {
     super.dispose();
   }
-  
-  Future<void> gotoMain() async{
+
+  Future<void> gotoMain() async {
     await Future.delayed(
       const Duration(seconds: 3),
     );
@@ -50,4 +49,3 @@ class _ScreenSplashState extends State<ScreenSplash> {
     );
   }
 }
-

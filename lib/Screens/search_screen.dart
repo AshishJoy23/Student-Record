@@ -15,11 +15,6 @@ class ScreenSearch extends StatefulWidget {
 }
 
 class _ScreenSearchState extends State<ScreenSearch> {
-  // List<StudentModel> studentList =
-  //     Hive.box<StudentModel>('student-db').values.toList();
-
-  // late List<StudentModel> studentDisplay = List<StudentModel>.from(studentList);
-
   final textController = TextEditingController();
 
   @override
@@ -41,8 +36,8 @@ class _ScreenSearchState extends State<ScreenSearch> {
                 color: Colors.white, borderRadius: BorderRadius.circular(5)),
             child: Center(
               child: TextField(
-                //onChanged: (value) => updateList(value),
-                onChanged: (value) => BlocProvider.of<SearchViewBloc>(context).add(SearchViewList(searchedQuery: value)),
+                onChanged: (value) => BlocProvider.of<SearchViewBloc>(context)
+                    .add(SearchViewList(searchedQuery: value)),
                 onTapOutside: (event) {
                   FocusManager.instance.primaryFocus?.unfocus();
                 },
@@ -54,11 +49,8 @@ class _ScreenSearchState extends State<ScreenSearch> {
                         onPressed: () {
                           textController.clear();
                           FocusManager.instance.primaryFocus?.unfocus();
-                          BlocProvider.of<SearchViewBloc>(context).add(IdleViewList());
-                          // setState(() {
-                          //   studentDisplay =
-                          //       List<StudentModel>.from(studentList);
-                          // });
+                          BlocProvider.of<SearchViewBloc>(context)
+                              .add(IdleViewList());
                         }),
                     hintText: 'Search...',
                     border: InputBorder.none),
@@ -82,9 +74,7 @@ class _ScreenSearchState extends State<ScreenSearch> {
                           child: ListTile(
                             onTap: () {
                               final currentIndex = state.studentList.indexWhere(
-                                  (element) =>
-                                      element.name ==
-                                      data.name);
+                                  (element) => element.name == data.name);
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -113,13 +103,4 @@ class _ScreenSearchState extends State<ScreenSearch> {
       ),
     );
   }
-
-  // updateList(String value) {
-  //   setState(() {
-  //     studentDisplay = studentList
-  //         .where((element) =>
-  //             element.name.toLowerCase().contains(value.toLowerCase()))
-  //         .toList();
-  //   });
-  // }
 }
